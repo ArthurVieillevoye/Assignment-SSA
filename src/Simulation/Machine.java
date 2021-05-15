@@ -22,6 +22,8 @@ public class Machine implements CProcess,ProductAcceptor {
 	private final String name;
 	/** Mean processing time */
 	private double meanProcTime;
+
+	private double amplitude;
 	/** Processing times (in case pre-specified) */
 	private double[] processingTimes;
 	/** Processing time iterator */
@@ -54,13 +56,14 @@ public class Machine implements CProcess,ProductAcceptor {
 	*	@param n	The name of the machine
 	*        @param m	Mean processing time
 	*/
-	public Machine(Queue q, ProductAcceptor s, CEventList e, String n, double m) {
+	public Machine(Queue q, ProductAcceptor s, CEventList e, String n, double m, double ampli) {
 		status='i';
 		queue=q;
 		sink=s;
 		eventlist=e;
 		name=n;
 		meanProcTime=m;
+		amplitude = ampli;
 		queue.askProduct(this);
 	}
 	
@@ -92,7 +95,7 @@ public class Machine implements CProcess,ProductAcceptor {
 	*/
 	public void execute(int type, double tme) {
 		// show arrival
-		System.out.println("Product finished at time = " + tme);
+		System.out.println("Product finished at time = " + tme+"   "+name);
 		// Remove product from system
 		product.stamp(tme,"Production complete",name);
 		sink.giveProduct(product);
@@ -124,7 +127,12 @@ public class Machine implements CProcess,ProductAcceptor {
 		// Flag that the product has been rejected
 		else return false;
 	}
-	
+
+	@Override
+	public int size() {
+		return 0;
+	}
+
 	/**
 	*	Starting routine for the production
 	*	Start the handling of the current product with an exponentionally distributed processingtime with average 30
@@ -151,11 +159,12 @@ public class Machine implements CProcess,ProductAcceptor {
 		}
 	}
 
+
 	public static double drawRandomExponential(double mean) {
 		// draw a [0,1] uniform distributed number
 		double u = Math.random();
 		// Convert it into a exponentially distributed random variate with mean 33
 		double res = -mean*Math.log(u);
-		return res;
+		return Source.drawRandomExponential(mean);
 	}
 }

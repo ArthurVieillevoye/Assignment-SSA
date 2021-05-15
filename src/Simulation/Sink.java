@@ -48,7 +48,12 @@ public class Sink implements ProductAcceptor {
 		}
 		return true;
 	}
-	
+
+	@Override
+	public int size() {
+		return 0;
+	}
+
 	public int[] getNumbers() {
 		numbers.trimToSize();
 		int[] tmp = new int[numbers.size()];

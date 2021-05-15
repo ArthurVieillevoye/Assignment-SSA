@@ -13,4 +13,6 @@ public interface ProductAcceptor {
         *       @return true if accepted
 	*/
 	public boolean giveProduct(Product p);
+
+	public int size();
 }

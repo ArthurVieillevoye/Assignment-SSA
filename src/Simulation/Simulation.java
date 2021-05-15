@@ -6,6 +6,8 @@
 
 package Simulation;
 
+import java.util.Arrays;
+
 public class Simulation {
 
     public CEventList list;
@@ -13,26 +15,51 @@ public class Simulation {
     public Source source;
     public Sink sink;
     public Machine mach;
-	
+
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
-    	// Create an eventlist
-        CEventList l = new CEventList();
-        // A queue for the machine
-        Queue q = new Queue();
-        // A source with a given interval array.
-        // TODO Implement the poisson process
-        double[] interarrivalTime = {0.4,1.2,0.5,1.7,0.2,1.6,0.2,1.4,1.9};
-        Source s = new Source(q,l,"Source 1", interarrivalTime);
-        // A sink
-        Sink si = new Sink("Sink 1");
-        // A machine
-        double[] serviceTime = {2.0,0.7,0.2,1.1,3.7,0.6,4.0,4.0,4.0};
-        Machine m = new Machine(q,si,l,"Machine 1", serviceTime);
-        // start the eventlist
-        l.start(8.7); // 2000 is maximum time
+    public static void main(String[] args){
+        new Simulation().basesetting();
     }
+
+    Machine [] machines = new Machine[8];
+    Queue [] queues = new Queue[8];
+
+    public void basesetting(){
+        CEventList l = new CEventList();
+        Sink si = new Sink("Sink 1");
+
+
+        for (int i=0; i < 8 ;i++){
+            queues[i] = new Queue();
+        }
+        Source s1 = new Source(l,"Regular",10,2);
+        Source s2 = new Source(l,"GPU",10,2);
+        // TODO Implement the poisson process
+
+        // The regular computation severs
+        for (int i=0; i < 6; i++){
+            machines[i] = new Machine(queues[i],si,l,"Regular computation severs",24,0.8);
+            s1.add(queues[i]);
+        }
+
+        for (int i=0; i < 2; i++){
+            s1.add(queues[i+6]);
+            s2.add(queues[i+6]);
+            machines[i+6] = new Machine(queues[i+6],si,l,"GPUs",24,.8);
+        }
+        // The GPU severs
+
+
+
+        l.start(40); // 2000 is maximum time
+    }
+
+    //TODO Implement the poisont distribution
+    private double [] poissonDistri() {
+        return null;
+    }
+
 }

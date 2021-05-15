@@ -1,5 +1,7 @@
 package Simulation;
 
+import java.util.ArrayList;
+
 /**
  *	A source of products
  *	This class implements CProcess so that it can execute events.
@@ -11,11 +13,13 @@ public class Source implements CProcess {
 	/** Eventlist that will be requested to construct events */
 	private CEventList list;
 	/** Queue that buffers products for the machine */
-	private ProductAcceptor queue;
+	private ArrayList<ProductAcceptor> queue = new ArrayList<>();
 	/** Name of the source */
 	private String name;
 	/** Mean interarrival time */
 	private double meanArrTime;
+
+	private double amplitude;
 	/** Interarrival times (in case pre-specified) */
 	private double[] interarrivalTimes;
 	/** Interarrival time iterator */
@@ -30,7 +34,7 @@ public class Source implements CProcess {
 	*/
 	public Source(ProductAcceptor q,CEventList l,String n) {
 		list = l;
-		queue = q;
+		queue.add(q);
 		name = n;
 		meanArrTime=33;
 		// put first event in list for initialization
@@ -47,11 +51,23 @@ public class Source implements CProcess {
 	*/
 	public Source(ProductAcceptor q,CEventList l,String n,double m) {
 		list = l;
-		queue = q;
+		queue.add(q);
 		name = n;
 		meanArrTime=m;
 		// put first event in list for initialization
 		list.add(this,0,drawRandomExponential(meanArrTime)); //target,type,time
+	}
+	public Source(CEventList l, String n, double m, double ampli) {
+		list = l;
+		name = n;
+		meanArrTime=m;
+		amplitude = ampli;
+		// put first event in list for initialization
+		list.add(this,0,drawRandomExponential(meanArrTime)); //target,type,time
+	}
+
+	public void add(ProductAcceptor q){
+		queue.add(q);
 	}
 
 	/**
@@ -64,7 +80,7 @@ public class Source implements CProcess {
 	*/
 	public Source(ProductAcceptor q,CEventList l,String n,double[] ia) {
 		list = l;
-		queue = q;
+		queue.add(q);
 		name = n;
 		meanArrTime=-1;
 		interarrivalTimes=ia;
@@ -80,7 +96,15 @@ public class Source implements CProcess {
 		// give arrived product to queue
 		Product p = new Product();
 		p.stamp(tme,"Creation",name);
-		queue.giveProduct(p);
+		int min = queue.get(0).size();
+		ProductAcceptor assigne = queue.get(0);
+		for(ProductAcceptor qu: queue){
+			if(qu.size() < min){
+				assigne = qu;
+				min = qu.size();
+			}
+		}
+		assigne.giveProduct(p);
 		// generate duration
 		if(meanArrTime>0) {
 			double duration = drawRandomExponential(meanArrTime);
@@ -95,7 +119,8 @@ public class Source implements CProcess {
 			}
 		}
 	}
-	
+
+	//TODO Implement the poisont distribution
 	public static double drawRandomExponential(double mean) {
 		// draw a [0,1] uniform distributed number
 		double u = Math.random();
