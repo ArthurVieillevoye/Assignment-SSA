@@ -7,8 +7,7 @@ package Simulation;
  *	@author Joel Karel
  *	@version %I%, %G%
  */
-public class Source implements CProcess
-{
+public class Source implements CProcess {
 	/** Eventlist that will be requested to construct events */
 	private CEventList list;
 	/** Queue that buffers products for the machine */
@@ -29,8 +28,7 @@ public class Source implements CProcess
 	*	@param l	The eventlist that is requested to construct events
 	*	@param n	Name of object
 	*/
-	public Source(ProductAcceptor q,CEventList l,String n)
-	{
+	public Source(ProductAcceptor q,CEventList l,String n) {
 		list = l;
 		queue = q;
 		name = n;
@@ -47,8 +45,7 @@ public class Source implements CProcess
 	*	@param n	Name of object
 	*	@param m	Mean arrival time
 	*/
-	public Source(ProductAcceptor q,CEventList l,String n,double m)
-	{
+	public Source(ProductAcceptor q,CEventList l,String n,double m) {
 		list = l;
 		queue = q;
 		name = n;
@@ -65,8 +62,7 @@ public class Source implements CProcess
 	*	@param n	Name of object
 	*	@param ia	interarrival times
 	*/
-	public Source(ProductAcceptor q,CEventList l,String n,double[] ia)
-	{
+	public Source(ProductAcceptor q,CEventList l,String n,double[] ia) {
 		list = l;
 		queue = q;
 		name = n;
@@ -78,8 +74,7 @@ public class Source implements CProcess
 	}
 	
         @Override
-	public void execute(int type, double tme)
-	{
+	public void execute(int type, double tme) {
 		// show arrival
 		System.out.println("Arrival at time = " + tme);
 		// give arrived product to queue
@@ -87,28 +82,21 @@ public class Source implements CProcess
 		p.stamp(tme,"Creation",name);
 		queue.giveProduct(p);
 		// generate duration
-		if(meanArrTime>0)
-		{
+		if(meanArrTime>0) {
 			double duration = drawRandomExponential(meanArrTime);
 			// Create a new event in the eventlist
 			list.add(this,0,tme+duration); //target,type,time
-		}
-		else
-		{
+		} else {
 			interArrCnt++;
-			if(interarrivalTimes.length>interArrCnt)
-			{
+			if(interarrivalTimes.length>interArrCnt) {
 				list.add(this,0,tme+interarrivalTimes[interArrCnt]); //target,type,time
-			}
-			else
-			{
+			} else {
 				list.stop();
 			}
 		}
 	}
 	
-	public static double drawRandomExponential(double mean)
-	{
+	public static double drawRandomExponential(double mean) {
 		// draw a [0,1] uniform distributed number
 		double u = Math.random();
 		// Convert it into a exponentially distributed random variate with mean 33
