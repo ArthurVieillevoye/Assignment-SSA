@@ -1,6 +1,8 @@
 package Simulation;
 
 
+import Simulation.RandomDistribution.UniformDistribution;
+import Simulation.RandomDistribution.RandomDistribution;
 
 /**
  *	Machine in a factory
@@ -20,10 +22,8 @@ public class Machine implements CProcess,ProductAcceptor {
 	private char status;
 	/** Machine name */
 	private final String name;
-	/** Mean processing time */
-	private double meanProcTime;
-
-	private double amplitude;
+	/** Random Distribution */
+	private RandomDistribution rnd;
 	/** Processing times (in case pre-specified) */
 	private double[] processingTimes;
 	/** Processing time iterator */
@@ -43,7 +43,7 @@ public class Machine implements CProcess,ProductAcceptor {
 		sink=s;
 		eventlist=e;
 		name=n;
-		meanProcTime=30;
+		rnd = new UniformDistribution(30);
 		queue.askProduct(this);
 	}
 
@@ -54,16 +54,15 @@ public class Machine implements CProcess,ProductAcceptor {
 	*	@param s	Where to send the completed products
 	*	@param e	Eventlist that will manage events
 	*	@param n	The name of the machine
-	*        @param m	Mean processing time
+	*   @param rnd	Mean processing time
 	*/
-	public Machine(Queue q, ProductAcceptor s, CEventList e, String n, double m, double ampli) {
+	public Machine(Queue q, ProductAcceptor s, CEventList e, String n, RandomDistribution rnd) {
 		status='i';
 		queue=q;
 		sink=s;
 		eventlist=e;
 		name=n;
-		meanProcTime=m;
-		amplitude = ampli;
+		this.rnd = rnd;
 		queue.askProduct(this);
 	}
 	
@@ -82,7 +81,7 @@ public class Machine implements CProcess,ProductAcceptor {
 		sink=s;
 		eventlist=e;
 		name=n;
-		meanProcTime=-1;
+		rnd = new UniformDistribution(-1);
 		processingTimes=st;
 		procCnt=0;
 		queue.askProduct(this);
@@ -140,8 +139,8 @@ public class Machine implements CProcess,ProductAcceptor {
 	*/
 	private void startProduction() {
 		// generate duration
-		if(meanProcTime>0) {
-			double duration = drawRandomExponential(meanProcTime);
+		if(rnd.getMean()>0) {
+			double duration = drawRandomExponential();
 			// Create a new event in the eventlist
 			double tme = eventlist.getTime();
 			eventlist.add(this,0,tme+duration); //target,type,time
@@ -160,11 +159,7 @@ public class Machine implements CProcess,ProductAcceptor {
 	}
 
 
-	public static double drawRandomExponential(double mean) {
-		// draw a [0,1] uniform distributed number
-		double u = Math.random();
-		// Convert it into a exponentially distributed random variate with mean 33
-		double res = -mean*Math.log(u);
-		return Source.drawRandomExponential(mean);
+	public double drawRandomExponential() {
+		return rnd.executeRandom();
 	}
 }

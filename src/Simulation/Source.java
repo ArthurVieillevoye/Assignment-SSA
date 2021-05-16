@@ -1,5 +1,8 @@
 package Simulation;
 
+import Simulation.RandomDistribution.UniformDistribution;
+import Simulation.RandomDistribution.RandomDistribution;
+
 import java.util.ArrayList;
 
 /**
@@ -16,10 +19,8 @@ public class Source implements CProcess {
 	private ArrayList<ProductAcceptor> queue = new ArrayList<>();
 	/** Name of the source */
 	private String name;
-	/** Mean interarrival time */
-	private double meanArrTime;
-
-	private double amplitude;
+	/** Random Distribution */
+	private RandomDistribution rnd;
 	/** Interarrival times (in case pre-specified) */
 	private double[] interarrivalTimes;
 	/** Interarrival time iterator */
@@ -36,9 +37,9 @@ public class Source implements CProcess {
 		list = l;
 		queue.add(q);
 		name = n;
-		meanArrTime=33;
+		this.rnd = new UniformDistribution(35);
 		// put first event in list for initialization
-		list.add(this,0,drawRandomExponential(meanArrTime)); //target,type,time
+		list.add(this,0,drawRandomExponential()); //target,type,time
 	}
 
 	/**
@@ -53,17 +54,16 @@ public class Source implements CProcess {
 		list = l;
 		queue.add(q);
 		name = n;
-		meanArrTime=m;
+		this.rnd = new UniformDistribution(m);
 		// put first event in list for initialization
-		list.add(this,0,drawRandomExponential(meanArrTime)); //target,type,time
+		list.add(this,0,drawRandomExponential()); //target,type,time
 	}
-	public Source(CEventList l, String n, double m, double ampli) {
+	public Source(CEventList l, String n, RandomDistribution rnd) {
 		list = l;
 		name = n;
-		meanArrTime=m;
-		amplitude = ampli;
+		this.rnd = rnd;
 		// put first event in list for initialization
-		list.add(this,0,drawRandomExponential(meanArrTime)); //target,type,time
+		list.add(this,0,drawRandomExponential()); //target,type,time
 	}
 
 	public void add(ProductAcceptor q){
@@ -82,7 +82,7 @@ public class Source implements CProcess {
 		list = l;
 		queue.add(q);
 		name = n;
-		meanArrTime=-1;
+		this.rnd = new UniformDistribution(-1);
 		interarrivalTimes=ia;
 		interArrCnt=0;
 		// put first event in list for initialization
@@ -92,7 +92,7 @@ public class Source implements CProcess {
         @Override
 	public void execute(int type, double tme) {
 		// show arrival
-		System.out.println("Arrival at time = " + tme);
+		System.out.println("Arrival at time = " + tme + "   "+ name);
 		// give arrived product to queue
 		Product p = new Product();
 		p.stamp(tme,"Creation",name);
@@ -106,8 +106,8 @@ public class Source implements CProcess {
 		}
 		assigne.giveProduct(p);
 		// generate duration
-		if(meanArrTime>0) {
-			double duration = drawRandomExponential(meanArrTime);
+		if(rnd.getMean()>0) {
+			double duration = drawRandomExponential();
 			// Create a new event in the eventlist
 			list.add(this,0,tme+duration); //target,type,time
 		} else {
@@ -120,12 +120,7 @@ public class Source implements CProcess {
 		}
 	}
 
-	//TODO Implement the poisont distribution
-	public static double drawRandomExponential(double mean) {
-		// draw a [0,1] uniform distributed number
-		double u = Math.random();
-		// Convert it into a exponentially distributed random variate with mean 33
-		double res = -mean*Math.log(u);
-		return res;
+	public double drawRandomExponential() {
+		return rnd.executeRandom();
 	}
 }
