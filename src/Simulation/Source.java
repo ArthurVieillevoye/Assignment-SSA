@@ -92,7 +92,7 @@ public class Source implements CProcess {
         @Override
 	public void execute(int type, double tme) {
 		// show arrival
-		System.out.println("Arrival at time = " + tme + "   "+ name);
+		//System.out.println("Arrival at time = " + tme + "   "+ name);
 		// give arrived product to queue
 		Product p = new Product();
 		p.stamp(tme,"Creation",name);
