@@ -22,7 +22,7 @@ public class Source implements CProcess {
 	/** Random Distribution */
 	private RandomDistribution rnd;
 	/** Interarrival times (in case pre-specified) */
-	private double[] interarrivalTimes;
+	private Double[] interarrivalTimes;
 	/** Interarrival time iterator */
 	private int interArrCnt;
 
@@ -73,14 +73,12 @@ public class Source implements CProcess {
 	/**
 	*	Constructor, creates objects
 	*        Interarrival times are prespecified
-	*	@param q	The receiver of the products
 	*	@param l	The eventlist that is requested to construct events
 	*	@param n	Name of object
 	*	@param ia	interarrival times
 	*/
-	public Source(ProductAcceptor q,CEventList l,String n,double[] ia) {
+	public Source(CEventList l,String n,Double[] ia) {
 		list = l;
-		queue.add(q);
 		name = n;
 		this.rnd = new UniformDistribution(-1);
 		interarrivalTimes=ia;
@@ -108,6 +106,7 @@ public class Source implements CProcess {
 		// generate duration
 		if(rnd.getMean()>0) {
 			double duration = drawRandomExponential();
+			// Create a new event in the eventlist
 			// Create a new event in the eventlist
 			list.add(this,0,tme+duration); //target,type,time
 		} else {
