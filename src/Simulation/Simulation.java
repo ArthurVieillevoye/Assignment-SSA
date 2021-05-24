@@ -11,6 +11,14 @@ import Simulation.RandomDistribution.NormalDistribution;
 import Simulation.RandomDistribution.Poisson;
 import Simulation.RandomDistribution.SeedGenrator;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class Simulation {
     public static int seed = 10;
     public CEventList list;
@@ -19,24 +27,29 @@ public class Simulation {
     public Sink sink;
     public Machine mach;
     public static double tot = 0;
+    public static FileWriter csvWriter;
 
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args){
-        for (int i=0; i <10;i++) {
+    public static void main(String[] args) throws IOException {
+        csvWriter = new FileWriter("new.csv");
+        for (int i=0; i <49;i++) {
             SeedGenrator.newseed(i);
             new Simulation().basesetting();
         }
-        System.out.println(tot/(10*4*24));
+
+        csvWriter.flush();
+        csvWriter.close();
+       // System.out.println(tot/(2*365*24));
     }
 
     Machine [] machines = new Machine[8];
     Queue [] queues = new Queue[8];
 
-    public void basesetting(){
-        int time = 4*24*60;
+    public void basesetting() throws IOException {
+        int time = (45*24*60);
         CEventList l = new CEventList();
         Sink si = new Sink("Sink 1");
 
@@ -61,9 +74,33 @@ public class Simulation {
         }
 
         l.start(time);
-        tot += si.getEvents().length/3.;
-        for(int i=0; i < si.getEvents().length; i+=3){
-            System.out.println(si.getTimes()[i]+"     "+si.getEvents()[i]+"    "+ si.getStations()[i]);
+        ArrayList<String[]> data = new ArrayList<>();
+        for(int i = 0; i < si.getEvents().length; i++){
+            data.add(new String[]{si.getStations()[i], si.getEvents()[i], String.valueOf(si.getTimes()[i])});
         }
+        for (String [] rowData : data) {
+            csvWriter.append(String.join(",", new ArrayList<>(Arrays.asList(rowData))));
+            csvWriter.append("\n");
+        }
+        //tot += si.getEvents().length/3.;
+
+
+        /*
+        double [] queueing = new double[si.getEvents().length/3];
+        int GPUs = 0;
+        for(int i=0; i < si.getEvents().length; i+=3){
+            queueing[i] = (si.getTimes()[i+1] - si.getTimes()[i]);
+            if(si.getStations()[i].contains("GPU")) GPUs++;
+        }
+        double [] queueingGPUs = new double[GPUs];
+        double [] queueingregular = new double[si.getEvents().length/3 - GPUs];
+        int index1 = 0;
+        int index2 = 0;
+        for(int i=0; i < si.getEvents().length; i+=3){
+            if(si.getStations()[i].contains("GPU"))
+                queueingGPUs[index1++] = (si.getTimes()[i+1] - si.getTimes()[i]);
+            else
+                queueingregular[index2++] = (si.getTimes()[i+1] - si.getTimes()[i]);
+        }*/
     }
 }
