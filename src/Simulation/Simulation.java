@@ -34,7 +34,7 @@ public class Simulation {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws IOException {
-        csvWriter = new FileWriter("new.csv");
+        csvWriter = new FileWriter("data.csv");
         for (int i=0; i <49;i++) {
             SeedGenrator.newseed(i);
             new Simulation().basesetting();
@@ -56,8 +56,7 @@ public class Simulation {
         for (int i=0; i < 8 ;i++){
             queues[i] = new Queue();
         }
-        // TODO Implement the Nonstationary poisson process
-
+        
         Source s1 = new Source(l,"Regular task", new NonstationaryPoisson(30, .8, 24*60, time));
         Source s2 = new Source(l,"GPU task", new Poisson(2*60));
 
@@ -82,25 +81,5 @@ public class Simulation {
             csvWriter.append(String.join(",", new ArrayList<>(Arrays.asList(rowData))));
             csvWriter.append("\n");
         }
-        //tot += si.getEvents().length/3.;
-
-
-        /*
-        double [] queueing = new double[si.getEvents().length/3];
-        int GPUs = 0;
-        for(int i=0; i < si.getEvents().length; i+=3){
-            queueing[i] = (si.getTimes()[i+1] - si.getTimes()[i]);
-            if(si.getStations()[i].contains("GPU")) GPUs++;
-        }
-        double [] queueingGPUs = new double[GPUs];
-        double [] queueingregular = new double[si.getEvents().length/3 - GPUs];
-        int index1 = 0;
-        int index2 = 0;
-        for(int i=0; i < si.getEvents().length; i+=3){
-            if(si.getStations()[i].contains("GPU"))
-                queueingGPUs[index1++] = (si.getTimes()[i+1] - si.getTimes()[i]);
-            else
-                queueingregular[index2++] = (si.getTimes()[i+1] - si.getTimes()[i]);
-        }*/
     }
 }
